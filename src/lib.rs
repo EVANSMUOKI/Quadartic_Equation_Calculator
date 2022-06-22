@@ -3,6 +3,7 @@ use near_sdk::{near_bindgen, log};
 #[near_bindgen]
 #[derive(Default, BorshDeserialize, BorshSerialize)]
 pub struct Coefficient {
+    //USER STATES
     val1: f32,
     val2: f32,
     val3: f32,
@@ -16,35 +17,38 @@ pub struct Quadratic {
       val2: f32,
       val3: f32,
     
-    
 }
 
 
 #[near_bindgen]
 impl Quadratic {
 
-    // pub fn new(a: f32,b: f32,c: f32,) ->Self{
-    //     Quadratic{val1:a,val2: b,val3:c }
-    // }
-
     //CONTRACT METHODS
-      pub fn obtain_coefficients(&mut self, a: f32,b: f32,c: f32,){
-     //accept user input and store the values for a, b, and c.
-          //let val1: a, val2: b, val3:c;
+
+    //the function to obtain coefficients input from user
+      
+    pub fn obtain_coefficients(&mut self, a: f32,b: f32,c: f32,){
+    
+        //accept user input and store the values for a, b, and c.
           let _new_coefficients =Coefficient {
            val1: a, 
             val2: b, 
             val3:c,
            
         };
-       // self.Coefficients.push(new_coefficients);
+
 
       }
+
+      //function to find roots of the equation
      pub fn find_roots(&mut self) {
+         //all find_roots methods here
+
 
         let discriminant: f32 = (self.val2*self.val2)- (4f32 * self.val1 * self.val3);    
         
         if discriminant > 0f32 {
+            //checking if roots are real and distinct
       
             let x_0 = (-self.val2 + discriminant.sqrt()) /(self.val1*2f32);
             let x_1 = (-self.val2 - discriminant.sqrt()) /(self.val1 *2f32);
@@ -52,12 +56,17 @@ impl Quadratic {
             log!("x1= {} x2= {}", x_0, x_1);
             } 
             else if discriminant == 0.0 {
+                //checking if the roots are real and reapeted
 
                 let x_0= (-self.val2 )/(self.val1*2f32);
                 log!("x= {}", x_0);
+                // (x_0, x_1)
 
             }
             else if discriminant < 0.0 {
+                //checking if roots are not real(complex)
+
+
                 let real_part=(-self.val2 )/(self.val1*2f32);
                 let img_part= discriminant.sqrt()/(self.val1*2f32);
                 log!("x1= ({}+{}i) x2= ({}{}i)", real_part,img_part,real_part,-img_part);
@@ -70,6 +79,7 @@ impl Quadratic {
 
 
 pub fn reset(&mut self) {
+    //this function resets the values of coefficients to zero
     self.val1=0f32;
     self.val2 =0f32;
     self.val3 =0f32;
@@ -77,6 +87,7 @@ pub fn reset(&mut self) {
     log!("Reset coefficients to zero"); 
 }
 }   
+
 
 /*
  * the rest of this file sets up unit tests
@@ -90,9 +101,9 @@ pub fn reset(&mut self) {
 #[cfg(test)]
 mod tests{
     use super::*;
-    use near_sdk::{testing_env, VMContext, env::input};
+    use near_sdk::{testing_env, VMContext};
 
-fn Get_context(input: Vec<f32>, is_view: bool) -> VMContext {
+fn get_context(_input: Vec<f32>, is_view: bool) -> VMContext {
    
  VMContext {
     current_account_id: "evansmuoki.testnet".to_string(),
@@ -113,14 +124,15 @@ fn Get_context(input: Vec<f32>, is_view: bool) -> VMContext {
     epoch_height: 19, 
     }
 }
-
+//TESTS HERE
     // part of writing unit tests is setting up a mock context
     // in this example, this is only needed for env::log in the contract
     // this is also a useful list to peek at when wondering what's available in env::*
  #[test]
+ //testing the obtained coefficients
 
  fn obtain_coefficients_test (){
-    let context = Get_context(vec![], false);
+    let context = get_context(vec![], false);
     testing_env!(context);
     
     let mut contract = Quadratic { coefficients: Vec::new(),val1: 0.0, val2: 0.0, val3: 0.0};
@@ -131,10 +143,10 @@ fn Get_context(input: Vec<f32>, is_view: bool) -> VMContext {
 
  }
    #[test]
-
+   //testing the roots output
     fn find_roots_test(){
 
-        let context = Get_context(vec![], false);
+        let context = get_context(vec![], false);
         testing_env!(context);
         let mut contract = Quadratic { coefficients: Vec::new(),val1: 0.0,val2: 0.0,val3:0.0};
         contract.find_roots();
@@ -145,9 +157,9 @@ fn Get_context(input: Vec<f32>, is_view: bool) -> VMContext {
     }
 
     #[test]
-
+    //testing the reset function for coefficientd
     fn reset_coefficients_test (){
-            let context = Get_context(vec![], false);
+            let context = get_context(vec![], false);
             testing_env!(context);
             let mut contract = Quadratic{ coefficients: Vec::new(),val1: 0.0,val2: 0.0,val3:0.0};
             contract.find_roots();
